@@ -7,11 +7,13 @@
  * Time: 00:38
  */
 include 'Conectabd.class.php';
+
 class Usuario extends ConectaBD
 {
     private $nome;
     private $email;
     private $senha;
+    private $user;
 
     public function getNome()
     {
@@ -43,16 +45,31 @@ class Usuario extends ConectaBD
         $this->senha = $senha;
     }
 
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
     public function Cadastrar()
     {
         $pdo = parent::getBD();
-        $insere = $pdo->prepare("INSERT INTO CADASTRO (EMAIL,SENHA) VALUES (?,?)");
-        $insere->bindValue(1, $this->getEmail());
-        $insere->bindValue(2, $this->getSenha());
-        $insere->execute();
-        if($insere)
-            echo "Cadastrado";
-        else
-            echo "Erro ao cadastrar";
+        $verificar = $pdo->prepare("SELECT *FROM USUARIO WHERE NOME = ?");
+        $verificar->bindValue(1, $this->getEmail());
+        $verificar->execute();
+        if ($verificar->rowCount()== 0)
+        {
+            $insere = $pdo->prepare("INSERT INTO USUARIO (NOME, SENHA, TIPO_USUARIO) VALUES (?,?,?)");
+            $insere->bindValue(1, $this->getEmail());
+            $insere->bindValue(2, $this->getSenha());
+            $insere->bindValue(3, $this->getUser());
+            $insere->execute();
+            return true;
+        } else
+            return false;
     }
 }
